@@ -1,10 +1,23 @@
-(make-variable-buffer-local
- (defvar current-session nil
-   "Current session for caching purposes"))
+(require 'elpy)
+(defvar datascience-current-session)
+(defvar datascience-image-counter)
+(defvar datascience-plot-dir)
 
-(make-variable-buffer-local
- (defvar image-counter 0
-   "Current session for caching purposes"))
+(defconst datascience-internal-vars '(datascience-current-session
+                                      datascience-image-counter
+                                      datascience-plot-dir))
+
+(dolist (var datascience-internal-vars)
+  (make-variable-buffer-local var))
+
+(defun datascience-initialize ()
+  "Initialize data science IDE"
+  (progn
+    (setq datascience-plot-dir (concat (buffer-file-name) "ds-plots"))
+    (make-directory datascience-plot-dir)
+    (image-dired datascience-plot-dir)
+    (message "****TEST****")))
+
 
 (defun datascience-shell-send-region-or-buffer ()
   "Send the active region or the buffer to the Python shell.
@@ -29,9 +42,11 @@ code is executed."
            (let ((selected-region (elpy-shell--region-without-indentation
                                    (region-beginning) (region-end))))
              (if (string-match "plt\.show.+?\)" selected-region)
-                 (setq image-counter (+ image-counter 1)))
+                 (setq datascience-image-counter (+ datascience-image-counter 1)))
              (let ((region (replace-regexp-in-string
-                            "plt\.show.+?\)" (format "plt.savefig('%d')" image-counter)
+                            "plt\.show.+?\)" (format "plt.savefig('%s/%d')"
+                                                     datascience-plot-dir
+                                                     datascience-image-counter)
                             selected-region)))
             (setq has-if-main (string-match if-main-regex region))
             (when (string-match "\t" region)
@@ -46,14 +61,36 @@ code is executed."
         (message (concat "Removed if __main__ == '__main__' construct, "
                          "use a prefix argument to evaluate.")))))
 
+
 (define-minor-mode datascience-mode
   "Turn Elpy into a data science IDE"
   :lighter " datascience"
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "C-c f") 'datascience-shell-send-region-or-buffer)
-            map))
+            map)
+
+  (if datascience-mode
+      ;; Enabling.
+      (progn
+        (setq datascience-image-counter 0)
+        (setq datascience-plot-dir "ds-plots")
+        (datascience-initialize))
+
+    ;; Disabling.
+    ))
+
+
+
 
 ;;;###autoload
-(add-hook 'elpy-mode-hook 'datascience-mode)
+;;;(add-hook 'elpy-mode-hook 'datascience-mode)
 
-(provide 'datascience-mode)
+(provide 'datascience)
+
+;;; Use this to set variables
+;;; https://www.emacswiki.org/emacs/fill-column-indicator.el
+
+          
+;;; Commands to think about
+;;; dired-mark-subdir-files
+;;; image-dired-display-thumbs
