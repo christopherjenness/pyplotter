@@ -24,12 +24,13 @@
 
 (defun datascience-update-plots ()
   (progn
-    (switch-to-buffer (concat datascience-code-name "ds-plots"))
-    (revert-buffer)
-    (dired-mark-subdir-files)
-    (image-dired-display-thumbs)
-    (other-window -1)
-    (switch-to-buffer datascience-code-buffer)))
+    (let ((sw (selected-window)))
+      (switch-to-buffer (concat datascience-code-name "ds-plots"))
+      (revert-buffer)
+      (dired-mark-subdir-files)
+      (image-dired-display-thumbs)
+      (select-window sw)))
+    (switch-to-buffer datascience-code-buffer))
 
 (defun datascience-shell-send-region-or-buffer ()
   "Send the active region or the buffer to the Python shell.
@@ -68,6 +69,7 @@ code is executed."
           (goto-char (point-min))
           (setq has-if-main (re-search-forward if-main-regex nil t)))
         (python-shell-send-buffer arg))
+      (datascience-update-plots)
       (elpy-shell-display-buffer)
       (when has-if-main
         (message (concat "Removed if __main__ == '__main__' construct, "
