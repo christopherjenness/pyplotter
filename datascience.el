@@ -2,10 +2,13 @@
 (defvar datascience-current-session)
 (defvar datascience-image-counter)
 (defvar datascience-plot-dir)
+(defvar datascience-code-name)
+(defvar datascience-code-buffer)
 
 (defconst datascience-internal-vars '(datascience-current-session
                                       datascience-image-counter
-                                      datascience-plot-dir))
+                                      datascience-plot-dir
+                                      datascience-code-buffer))
 
 (dolist (var datascience-internal-vars)
   (make-variable-buffer-local var))
@@ -14,10 +17,19 @@
   "Initialize data science IDE"
   (progn
     (setq datascience-plot-dir (concat (buffer-file-name) "ds-plots"))
-    (make-directory datascience-plot-dir)
+    (ignore-errors (make-directory datascience-plot-dir))
     (image-dired datascience-plot-dir)
-    (message "****TEST****")))
+    ))
 
+
+(defun datascience-update-plots ()
+  (progn
+    (switch-to-buffer (concat datascience-code-name "ds-plots"))
+    (revert-buffer)
+    (dired-mark-subdir-files)
+    (image-dired-display-thumbs)
+    (other-window -1)
+    (switch-to-buffer datascience-code-buffer)))
 
 (defun datascience-shell-send-region-or-buffer ()
   "Send the active region or the buffer to the Python shell.
@@ -73,7 +85,8 @@ code is executed."
       ;; Enabling.
       (progn
         (setq datascience-image-counter 0)
-        (setq datascience-plot-dir "ds-plots")
+        (setq datascience-code-buffer (current-buffer))
+        (setq datascience-code-name (file-name-nondirectory (buffer-file-name)))
         (datascience-initialize))
 
     ;; Disabling.
