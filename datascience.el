@@ -1,4 +1,5 @@
 (require 'elpy)
+
 (defvar datascience-current-session)
 (defvar datascience-image-counter)
 (defvar datascience-plot-dir)
@@ -13,24 +14,25 @@
 (dolist (var datascience-internal-vars)
   (make-variable-buffer-local var))
 
+
 (defun datascience-initialize ()
   "Initialize data science IDE"
   (progn
     (setq datascience-plot-dir (concat (buffer-file-name) "ds-plots"))
     (ignore-errors (make-directory datascience-plot-dir))
-    (image-dired datascience-plot-dir)
+    (ignore-errors (image-dired datascience-plot-dir))
     ))
 
 
 (defun datascience-update-plots ()
   (progn
     (let ((sw (selected-window)))
-      (switch-to-buffer (concat datascience-code-name "ds-plots"))
+      (set-buffer (concat datascience-code-name "ds-plots"))
       (revert-buffer)
       (dired-mark-subdir-files)
       (image-dired-display-thumbs)
       (select-window sw)))
-    (switch-to-buffer datascience-code-buffer))
+    (set-buffer datascience-code-buffer))
 
 (defun datascience-shell-send-region-or-buffer ()
   "Send the active region or the buffer to the Python shell.
@@ -69,8 +71,9 @@ code is executed."
           (goto-char (point-min))
           (setq has-if-main (re-search-forward if-main-regex nil t)))
         (python-shell-send-buffer arg))
-      (datascience-update-plots)
       (elpy-shell-display-buffer)
+      (datascience-update-plots)
+      (datascience-update-plots)
       (when has-if-main
         (message (concat "Removed if __main__ == '__main__' construct, "
                          "use a prefix argument to evaluate.")))))
@@ -89,7 +92,8 @@ code is executed."
         (setq datascience-image-counter 0)
         (setq datascience-code-buffer (current-buffer))
         (setq datascience-code-name (file-name-nondirectory (buffer-file-name)))
-        (datascience-initialize))
+        (ignore-errors datascience-initialize)
+        (set-buffer datascience-code-buffer))
 
     ;; Disabling.
     ))
