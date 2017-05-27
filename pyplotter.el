@@ -1,3 +1,31 @@
+;;; pyplotter.el --- Convenient handling of python plots
+
+;; Copyright (c) 2017 Christopher Jenness
+
+;; Author: Alp Aker <christopherjenness@gmail.com>
+;; Version: 0.1
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2 of the
+;; License, or (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; A copy of the GNU General Public License can be obtained from the
+;; Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+;; MA 02111-1307 USA
+
+;;; Commentary:
+
+;; By default, python plots popup when using elpy, which is inconvenient
+;; This package moves plots to a thumbnail viewer for easy browsing
+
+;;; Code:
+
 (require 'elpy)
 
 (defvar pyplotter-current-session)
@@ -11,19 +39,8 @@
                                     pyplotter-plot-dir
                                     pyplotter-code-buffer))
 
-;(dolist (var pyplotter-internal-vars)
-;  (make-variable-buffer-local var))
-
-
-(defun plyplotter-initialize ()
-  "Initialize data science IDE"
-  (progn
-    (message pyplotter-code-name)
-    (message pyplotter-plot-dir)
-    (message pyplotter-plot-dir)
-    (make-directory pyplotter-plot-dir)
-    (image-dired pyplotter-plot-dir)
-    ))
+(dolist (var pyplotter-internal-vars)
+  (make-variable-buffer-local var))
 
 
 (defun pyplotter-update-plots ()
@@ -43,7 +60,7 @@
   "Send the active region or the buffer to the Python shell.
 
 Send plots to seperate buffer. Display dataframes in seperate
-buffer. 
+buffer.
 
 If there is an active region, send that. Otherwise, send the
 whole buffer.
@@ -95,11 +112,10 @@ code is executed."
   (if pyplotter-mode
       ;; Enabling.
       (progn
-        (message "***ONE***")
         (setq pyplotter-image-counter 0)
         (setq pyplotter-code-name (file-name-nondirectory (buffer-file-name)))
         (setq pyplotter-plot-dir (concat (buffer-file-name) "ds-plots"))
-        (ignore-errors make-directory pyplotter-plot-dir)
+        (make-directory pyplotter-plot-dir)
         (let ((sw (selected-window))
               (cb (current-buffer)))
           (image-dired pyplotter-plot-dir)
@@ -109,15 +125,5 @@ code is executed."
     ;; Disabling.
     ))
 
-;;;###autoload
-;;;(add-hook 'elpy-mode-hook 'pyplotter-mode)
-
 (provide 'pyplotter)
-
-;;; Use this to set variables
-;;; https://www.emacswiki.org/emacs/fill-column-indicator.el
-
-          
-;;; Commands to think about
-;;; dired-mark-subdir-files
-;;; image-dired-display-thumbs
+;;; pyplotter.el ends here
