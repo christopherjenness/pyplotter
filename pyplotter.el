@@ -79,7 +79,7 @@ code is executed."
            (let ((selected-region (elpy-shell--region-without-indentation
                                    (region-beginning) (region-end))))
              (if (string-match "plt\.show.+?\)" selected-region)
-                 (setq pyplotter-image-counter (+ pyplotter-image-counter 1)))
+                 (setq pyplotter-image-counter (- pyplotter-image-counter 1)))
              (let ((region (replace-regexp-in-string
                             "plt\.show.+?\)" (format "plt.savefig('%s/%d')"
                                                      pyplotter-plot-dir
@@ -112,10 +112,10 @@ code is executed."
   (if pyplotter-mode
       ;; Enabling.
       (progn
-        (setq pyplotter-image-counter 0)
+        (setq pyplotter-image-counter 1000)
         (setq pyplotter-code-name (file-name-nondirectory (buffer-file-name)))
         (setq pyplotter-plot-dir (concat (buffer-file-name) "ds-plots"))
-        (make-directory pyplotter-plot-dir)
+        (ignore-errors make-directory pyplotter-plot-dir)
         (let ((sw (selected-window))
               (cb (current-buffer)))
           (image-dired pyplotter-plot-dir)
@@ -127,3 +127,4 @@ code is executed."
 
 (provide 'pyplotter)
 ;;; pyplotter.el ends here
+
