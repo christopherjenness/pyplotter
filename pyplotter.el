@@ -37,7 +37,8 @@
 (defconst pyplotter-internal-vars '(pyplotter-current-session
                                     pyplotter-image-counter
                                     pyplotter-plot-dir
-                                    pyplotter-code-buffer))
+                                    pyplotter-code-buffer
+                                    pyplotter-code-name))
 
 (dolist (var pyplotter-internal-vars)
   (make-variable-buffer-local var))
@@ -94,12 +95,12 @@ code is executed."
           (setq has-if-main (re-search-forward if-main-regex nil t)))
         (python-shell-send-buffer arg))
       (elpy-shell-display-buffer)
-      (pyplotter-update-plots)
-      (pyplotter-update-plots)      
       (when has-if-main
         (message (concat "Removed if __main__ == '__main__' construct, "
                          "use a prefix argument to evaluate.")))
-      (pyplotter-update-plots)))
+      )
+    (pyplotter-update-plots)
+    (run-at-time "2 sec" nil #'pyplotter-update-plots))
 
 
 (define-minor-mode pyplotter-mode
@@ -125,6 +126,8 @@ code is executed."
     ;; Disabling.
     ))
 
+(add-hook 'pyplotter--shell-send-region-or-buffer 'pyplotter-update-plots)
 (provide 'pyplotter)
+
 ;;; pyplotter.el ends here
 
