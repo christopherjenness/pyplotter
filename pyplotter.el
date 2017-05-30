@@ -40,11 +40,24 @@
                                     pyplotter-code-buffer
                                     pyplotter-code-name))
 
+
+(defvar pyplotter-helper "
+import pandas as pd
+def check_dataframes():
+    for variable in globals().keys():
+        if isinstance(globals()[variable], pd.DataFrame):
+            print(variable)
+
+check_dataframes()
+")
+
+
 (dolist (var pyplotter-internal-vars)
   (make-variable-buffer-local var))
 
 
 (defun pyplotter-update-plots ()
+  "Update plots in the thumbnail viewer."
   (progn
     (let ((sw (selected-window))
           (cb (current-buffer)))
@@ -60,15 +73,15 @@
 (defun pyplotter-shell-send-region-or-buffer ()
   "Send the active region or the buffer to the Python shell.
 
-Send plots to seperate buffer. Display dataframes in seperate
+Send plots to seperate buffer.  Display dataframes in seperate
 buffer.
 
-If there is an active region, send that. Otherwise, send the
+If there is an active region, send that.  Otherwise, send the
 whole buffer.
 
 In Emacs 24.3 and later, without prefix argument, this will
 escape the Python idiom of if __name__ == '__main__' to be false
-to avoid accidental execution of code. With prefix argument, this
+to avoid accidental execution of code.  With prefix argument, this
 code is executed."
   (interactive)
   ;; Ensure process exists
@@ -125,6 +138,8 @@ code is executed."
 
     ;; Disabling.
     ))
+
+
 
 (add-hook 'pyplotter--shell-send-region-or-buffer 'pyplotter-update-plots)
 (provide 'pyplotter)
