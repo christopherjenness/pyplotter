@@ -41,15 +41,19 @@
                                     pyplotter-code-name))
 
 
-(defvar pyplotter-helper "
-import pandas as pd
+(defvar pyplotter-helper
+"import pandas as pd
 def check_dataframes():
     for variable in globals().keys():
         if isinstance(globals()[variable], pd.DataFrame):
-            print(variable)
+            globals()[variable].to_csv('dfs/{variable}.csv'.format(variable=variable))
 
 check_dataframes()
 ")
+
+;; Useful org functions:
+;; org-table-insert-hline
+;; org-table-create-or-convert-from-region
 
 
 (dolist (var pyplotter-internal-vars)
