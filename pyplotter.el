@@ -2,7 +2,7 @@
 
 ;; Copyright (c) 2017 Christopher Jenness
 
-;; Author: Alp Aker <christopherjenness@gmail.com>
+;; Author: Christopher Jenness <christopherjenness@gmail.com>
 ;; Version: 0.1
 
 ;; This program is free software; you can redistribute it and/or
@@ -76,11 +76,23 @@ check_dataframes()
 
 (defun pyplotter-browse-dataframes ()
   "Bring up the dataframe browser."
-  (let ((df-dir (concat (buffer-file-name) "ds-dfs"))
+  (let (df-dir (concat (buffer-file-name) "ds-dfs"))
     (ignore-errors (make-directory df-dir))
     (python-shell-send-string (format pyplotter-helper df-dir))
     (dired df-dir)
     (revert-buffer)))
+
+(defun pyplotter-format-table ()
+  "Format DataFrames."
+  (progn
+    (auto-fill-mode nil)
+    (mark-whole-buffer)
+    (org-table-create-or-convert-from-region nil)
+    (beginning-of-buffer)
+    (org-table-insert-hline)
+    (org-mode)
+    (toggle-truncate-lines)))
+    
 
 (defun pyplotter-shell-send-region-or-buffer ()
   "Send the active region or the buffer to the Python shell.
@@ -154,7 +166,7 @@ code is executed."
 
 
 (add-hook 'pyplotter--shell-send-region-or-buffer 'pyplotter-update-plots)
-(add-hook 'dired-find-file 'pyplotter-format-table)
+(add-hook 'find-file-hook 'pyplotter-format-table)
 (provide 'pyplotter)
 
 ;;; pyplotter.el ends here
