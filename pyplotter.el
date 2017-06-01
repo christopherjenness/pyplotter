@@ -46,7 +46,7 @@
 def check_dataframes():
     for variable in globals().keys():
         if isinstance(globals()[variable], pd.DataFrame):
-            globals()[variable].to_csv('dfs/{variable}.csv'.format(variable=variable))
+            globals()[variable].to_csv('%s/{variable}.csv'.format(variable=variable))
 
 check_dataframes()
 ")
@@ -72,7 +72,15 @@ check_dataframes()
       (image-dired-display-thumbs)
       (select-window sw)
       (switch-to-buffer cb)))
-    )
+  )
+
+(defun pyplotter-browse-dataframes ()
+  "Bring up the dataframe browser."
+  (let ((df-dir (concat (buffer-file-name) "ds-dfs"))
+    (ignore-errors (make-directory df-dir))
+    (python-shell-send-string (format pyplotter-helper df-dir))
+    (dired df-dir)
+    (revert-buffer)))
 
 (defun pyplotter-shell-send-region-or-buffer ()
   "Send the active region or the buffer to the Python shell.
@@ -146,6 +154,7 @@ code is executed."
 
 
 (add-hook 'pyplotter--shell-send-region-or-buffer 'pyplotter-update-plots)
+(add-hook 'dired-find-file 'pyplotter-format-table)
 (provide 'pyplotter)
 
 ;;; pyplotter.el ends here
