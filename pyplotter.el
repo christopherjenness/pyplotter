@@ -21,8 +21,9 @@
 
 ;;; Commentary:
 
-;; By default, python plots popup when using elpy, which is inconvenient
-;; This package moves plots to a thumbnail viewer for easy browsing
+;; By default, python plots pop out when using elpy, which is inconvenient.
+;; This package moves plots to a thumbnail viewer for easy browsing.
+;; Additionally, a viewer for dataframes is provided.
 
 ;;; Code:
 
@@ -71,16 +72,18 @@ check_dataframes()
       (dired-mark-files-regexp "\.png")
       (image-dired-display-thumbs)
       (select-window sw)
-      (switch-to-buffer cb)))
-  )
+      (switch-to-buffer cb))))
+
 
 (defun pyplotter-browse-dataframes ()
   "Bring up the dataframe browser."
-  (let (df-dir (concat (buffer-file-name) "ds-dfs"))
+  (interactive)
+  (let ((df-dir (concat (buffer-file-name) "ds-dfs")))
     (ignore-errors (make-directory df-dir))
     (python-shell-send-string (format pyplotter-helper df-dir))
     (dired df-dir)
     (revert-buffer)))
+
 
 (defun pyplotter-format-table ()
   "Format DataFrames."
@@ -145,11 +148,13 @@ code is executed."
   :lighter " pyplotter"
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "C-c f") 'pyplotter-shell-send-region-or-buffer)
+            (define-key map (kbd "C-c v") 'pyplotter-browse-dataframes)
             map)
 
   (if pyplotter-mode
-      ;; Enabling.
+      ;; Enabling:
       (progn
+        (add-hook 'find-file-hook 'pyplotter-format-table)
         (setq pyplotter-image-counter 1000)
         (setq pyplotter-code-name (file-name-nondirectory (buffer-file-name)))
         (setq pyplotter-plot-dir (concat (buffer-file-name) "ds-plots"))
@@ -160,14 +165,15 @@ code is executed."
           (select-window sw)
           (switch-to-buffer cb)))
 
-    ;; Disabling.
+    ;; Disabling:
+    (progn
+      (remove-hook 'find-file-hook 'pyplotter-format-table))
     ))
 
 
 
 (add-hook 'pyplotter--shell-send-region-or-buffer 'pyplotter-update-plots)
-(add-hook 'find-file-hook 'pyplotter-format-table)
+;(add-hook 'find-file-hook 'pyplotter-format-table)
 (provide 'pyplotter)
 
 ;;; pyplotter.el ends here
-
