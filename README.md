@@ -10,7 +10,9 @@ Pyplotter is a minor mode built on top of elpy.  The idea is to be able to handl
 
 As you can see in the screenshot above, on the left is a python file and REPL.  The main functionality is on the right.  Any plots generated are loaded into the thumbnail viewer on the bottom right hand corner.  These can be browsed and displayed in the top right window.
 
-The other basic functionality (not yet implemented) is to be able to inspect variables (pandas DataFrames, etc) so they do not need to be printed to inspect.
+The other basic functionality is to be able to inspect variables without printing them.  Currently, pandas DataFrames are supported, but this is easily extended.  Shown below, a pandas DataFrame is being inspected in the top right window.
+
+![screenshot](images/screenshot-df.png)
 
 ## Installation
 
@@ -26,6 +28,8 @@ The typical `elpy` function to send code to the REPL is `elpy-shell-send-region-
 
 By default, `pyplotter-shell-send-region-or-buffer` is bound to `C-c f`.
 
-# Contributing
+To browse your current dataframes in memory, call `pyplotter-browse-dataframes` which is bound to `C-c v` by default.
+
+## Contributing
 
 pyplotter has many [issues](https://github.com/christopherjenness/pyplotter/issues).
