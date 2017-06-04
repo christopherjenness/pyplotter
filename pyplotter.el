@@ -1,4 +1,4 @@
-;;; pyplotter.el --- Convenient handling of python plots
+;;; pyplotter.el --- Convenient handling of python plots and data
 
 ;; Copyright (c) 2017 Christopher Jenness
 
@@ -51,10 +51,6 @@ def check_dataframes():
 
 check_dataframes()
 ")
-
-;; Useful org functions:
-;; org-table-insert-hline
-;; org-table-create-or-convert-from-region
 
 
 (dolist (var pyplotter-internal-vars)
@@ -147,17 +143,23 @@ code is executed."
   "Turn Elpy into a data science IDE"
   :lighter " pyplotter"
   :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "C-c f") 'pyplotter-shell-send-region-or-buffer)
-            (define-key map (kbd "C-c v") 'pyplotter-browse-dataframes)
+            (define-key map (kbd "C-c f")
+              'pyplotter-shell-send-region-or-buffer)
+            (define-key map (kbd "C-c v")
+              'pyplotter-browse-dataframes)
             map)
 
   (if pyplotter-mode
       ;; Enabling:
       (progn
         (add-hook 'find-file-hook 'pyplotter-format-table)
+        (add-hook 'pyplotter--shell-send-region-or-buffer
+                  'pyplotter-update-plots)
         (setq pyplotter-image-counter 1000)
-        (setq pyplotter-code-name (file-name-nondirectory (buffer-file-name)))
-        (setq pyplotter-plot-dir (concat (buffer-file-name) "ds-plots"))
+        (setq pyplotter-code-name
+              (file-name-nondirectory (buffer-file-name)))
+        (setq pyplotter-plot-dir
+              (concat (buffer-file-name) "ds-plots"))
         (ignore-errors make-directory pyplotter-plot-dir)
         (let ((sw (selected-window))
               (cb (current-buffer)))
@@ -167,13 +169,12 @@ code is executed."
 
     ;; Disabling:
     (progn
-      (remove-hook 'find-file-hook 'pyplotter-format-table))
+      (remove-hook 'find-file-hook
+                   'pyplotter-format-table))
     ))
 
 
-
-(add-hook 'pyplotter--shell-send-region-or-buffer 'pyplotter-update-plots)
-;(add-hook 'find-file-hook 'pyplotter-format-table)
 (provide 'pyplotter)
+
 
 ;;; pyplotter.el ends here
